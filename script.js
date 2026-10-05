@@ -25,12 +25,15 @@ const drinks = [
     }
 ];
 
-let insumos = JSON.parse(localStorage.getItem("essenceInsumos")) || [];
-let eventos = JSON.parse(localStorage.getItem("essenceEventos")) || [];
+let insumos =
+    JSON.parse(localStorage.getItem("essenceInsumos")) || [];
+
+let eventos =
+    JSON.parse(localStorage.getItem("essenceEventos")) || [];
 
 
 // ==========================================
-// DINHEIRO
+// FORMATAÇÃO
 // ==========================================
 
 function dinheiro(valor) {
@@ -42,7 +45,7 @@ function dinheiro(valor) {
 
 
 // ==========================================
-// TROCAR TELA
+// TROCAR DE TELA
 // ==========================================
 
 function mostrarTela(tela) {
@@ -57,9 +60,17 @@ function mostrarTela(tela) {
         selecionada.classList.add("ativa");
     }
 
-    if (tela === "eventos") carregarEventos();
-    if (tela === "insumos") carregarInsumos();
-    if (tela === "dashboard") atualizarDashboard();
+    if (tela === "eventos") {
+        carregarEventos();
+    }
+
+    if (tela === "insumos") {
+        carregarInsumos();
+    }
+
+    if (tela === "dashboard") {
+        atualizarDashboard();
+    }
 
     window.scrollTo({
         top: 0,
@@ -69,7 +80,7 @@ function mostrarTela(tela) {
 
 
 // ==========================================
-// CARREGAR DRINKS
+// DRINKS
 // ==========================================
 
 function carregarDrinks() {
@@ -87,26 +98,66 @@ function carregarDrinks() {
             margin-bottom:15px;
         ">
 
-            <strong>🍹 Cálculo automático</strong>
+            <strong>🍹 Cálculo do evento</strong>
 
-            <p style="
-                margin-top:5px;
-                color:#666;
-                font-size:14px;
-            ">
-                O sistema considera 4 drinks por pessoa.
-            </p>
+            <div class="campo" style="margin-top:12px;">
+
+                <label>
+                    Drinks por pessoa
+                </label>
+
+                <input
+                    type="number"
+                    id="drinksPorPessoa"
+                    min="1"
+                    step="1"
+                    value="4"
+                    oninput="atualizarQuantidadeDrinks()"
+                >
+
+            </div>
+
+            <div class="campo">
+
+                <label>
+                    Valor por pessoa
+                </label>
+
+                <input
+                    type="number"
+                    id="valorPorPessoa"
+                    min="0"
+                    step="0.01"
+                    value="34.90"
+                    oninput="calcularOrcamento()"
+                >
+
+            </div>
 
             <div style="
                 margin-top:12px;
                 font-size:18px;
                 font-weight:bold;
             ">
+
                 Total de drinks:
                 <span id="totalDrinksAutomatico">0</span>
+
+            </div>
+
+            <div style="
+                margin-top:8px;
+                font-size:18px;
+                font-weight:bold;
+            ">
+
+                Valor do orçamento:
+                <span id="valorPorPessoaTotal">R$ 0,00</span>
+
             </div>
 
         </div>
+
 
         <div class="drinks-grid">
 
@@ -159,42 +210,6 @@ function carregarDrinks() {
 
                         </div>
 
-                        <div class="campo">
-
-                            <label>
-                                Preço de venda por drink
-                            </label>
-
-                            <input
-                                type="number"
-                                id="precoDrink${index}"
-                                min="0"
-                                step="0.01"
-                                value="0"
-                                placeholder="R$ 0,00"
-                                oninput="calcularOrcamento()"
-                            >
-
-                        </div>
-
-                        <div class="campo">
-
-                            <label>
-                                Custo de insumos por drink
-                            </label>
-
-                            <input
-                                type="number"
-                                id="custoDrink${index}"
-                                min="0"
-                                step="0.01"
-                                value="0"
-                                placeholder="R$ 0,00"
-                                oninput="calcularOrcamento()"
-                            >
-
-                        </div>
-
                     </div>
 
                 `;
@@ -209,7 +224,7 @@ function carregarDrinks() {
 
 
 // ==========================================
-// QUANTIDADE AUTOMÁTICA
+// CALCULAR QUANTIDADE DE DRINKS
 // ==========================================
 
 function atualizarQuantidadeDrinks() {
@@ -219,8 +234,11 @@ function atualizarQuantidadeDrinks() {
             document.getElementById("convidados")?.value || 0
         );
 
-    // 4 drinks por pessoa
-    const mediaDrinks = 4;
+    const campoMedia =
+        document.getElementById("drinksPorPessoa");
+
+    const mediaDrinks =
+        Number(campoMedia?.value || 0);
 
     const totalDrinks =
         convidados * mediaDrinks;
@@ -230,62 +248,67 @@ function atualizarQuantidadeDrinks() {
     drinks.forEach(function(drink, index) {
 
         const checkbox =
-            document.getElementById(`selecionarDrink${index}`);
+            document.getElementById(
+                `selecionarDrink${index}`
+            );
 
         if (checkbox && checkbox.checked) {
             selecionados.push(index);
         }
-
     });
 
     const quantidadeSelecionados =
         selecionados.length;
 
     const totalElement =
-        document.getElementById("totalDrinksAutomatico");
+        document.getElementById(
+            "totalDrinksAutomatico"
+        );
 
     if (totalElement) {
-        totalElement.textContent = totalDrinks;
+        totalElement.textContent =
+            totalDrinks;
     }
 
-    // Nenhum drink selecionado
     if (quantidadeSelecionados === 0) {
 
         drinks.forEach(function(drink, index) {
 
             const campo =
-                document.getElementById(`quantidadeDrink${index}`);
+                document.getElementById(
+                    `quantidadeDrink${index}`
+                );
 
             if (campo) {
                 campo.value = 0;
             }
-
         });
 
         calcularOrcamento();
         return;
     }
 
-    // Divide os drinks igualmente
     const quantidadeBase =
         Math.floor(
-            totalDrinks / quantidadeSelecionados
+            totalDrinks /
+            quantidadeSelecionados
         );
 
     const restante =
-        totalDrinks % quantidadeSelecionados;
+        totalDrinks %
+        quantidadeSelecionados;
 
     drinks.forEach(function(drink, index) {
 
         const campo =
-            document.getElementById(`quantidadeDrink${index}`);
+            document.getElementById(
+                `quantidadeDrink${index}`
+            );
 
         if (!campo) return;
 
         if (!selecionados.includes(index)) {
-
             campo.value = 0;
-
             return;
         }
 
@@ -295,14 +318,12 @@ function atualizarQuantidadeDrinks() {
         let quantidade =
             quantidadeBase;
 
-        // Distribui os drinks que sobraram
-        // entre os primeiros selecionados
         if (posicao < restante) {
             quantidade++;
         }
 
-        campo.value = quantidade;
-
+        campo.value =
+            quantidade;
     });
 
     calcularOrcamento();
@@ -315,56 +336,47 @@ function atualizarQuantidadeDrinks() {
 
 function calcularOrcamento() {
 
-    let valorDrinks = 0;
-    let custoInsumos = 0;
+    const convidados =
+        Number(
+            document.getElementById("convidados")?.value || 0
+        );
 
-    drinks.forEach(function(drink, index) {
+    const valorPorPessoa =
+        Number(
+            document.getElementById("valorPorPessoa")?.value || 0
+        );
 
-        const quantidade =
-            Number(
-                document.getElementById(
-                    `quantidadeDrink${index}`
-                )?.value || 0
-            );
+    const valorDrinks =
+        convidados * valorPorPessoa;
 
-        const preco =
-            Number(
-                document.getElementById(
-                    `precoDrink${index}`
-                )?.value || 0
-            );
+    const valorPorPessoaTotal =
+        document.getElementById(
+            "valorPorPessoaTotal"
+        );
 
-        const custo =
-            Number(
-                document.getElementById(
-                    `custoDrink${index}`
-                )?.value || 0
-            );
-
-        valorDrinks += quantidade * preco;
-
-        custoInsumos += quantidade * custo;
-    });
+    if (valorPorPessoaTotal) {
+        valorPorPessoaTotal.textContent =
+            dinheiro(valorDrinks);
+    }
 
     const valorEstrutura =
         Number(
-            document.getElementById(
-                "valorEstrutura"
-            )?.value || 0
+            document.getElementById("valorEstrutura")?.value || 0
         );
 
     const outrosCustos =
         Number(
-            document.getElementById(
-                "outrosCustos"
-            )?.value || 0
+            document.getElementById("outrosCustos")?.value || 0
         );
 
     const valorRecebido =
         Number(
-            document.getElementById(
-                "valorRecebido"
-            )?.value || 0
+            document.getElementById("valorRecebido")?.value || 0
+        );
+
+    const custoInsumos =
+        Number(
+            window.custoInsumosAtual || 0
         );
 
     const valorOrcamento =
@@ -387,34 +399,64 @@ function calcularOrcamento() {
             0
         );
 
-    document.getElementById("valorDrinks").textContent =
-        dinheiro(valorDrinks);
+    const elementoValorDrinks =
+        document.getElementById("valorDrinks");
 
-    document.getElementById("custoInsumos").textContent =
-        dinheiro(custoInsumos);
+    const elementoCustoInsumos =
+        document.getElementById("custoInsumos");
 
-    document.getElementById("custoTotal").textContent =
-        dinheiro(custoTotal);
+    const elementoCustoTotal =
+        document.getElementById("custoTotal");
 
-    document.getElementById("valorOrcamento").textContent =
-        dinheiro(valorOrcamento);
+    const elementoValorOrcamento =
+        document.getElementById("valorOrcamento");
 
-    document.getElementById("lucro").textContent =
-        dinheiro(lucro);
+    const elementoLucro =
+        document.getElementById("lucro");
 
-    document.getElementById("faltaReceber").textContent =
-        dinheiro(faltaReceber);
+    const elementoFaltaReceber =
+        document.getElementById("faltaReceber");
+
+    if (elementoValorDrinks) {
+        elementoValorDrinks.textContent =
+            dinheiro(valorDrinks);
+    }
+
+    if (elementoCustoInsumos) {
+        elementoCustoInsumos.textContent =
+            dinheiro(custoInsumos);
+    }
+
+    if (elementoCustoTotal) {
+        elementoCustoTotal.textContent =
+            dinheiro(custoTotal);
+    }
+
+    if (elementoValorOrcamento) {
+        elementoValorOrcamento.textContent =
+            dinheiro(valorOrcamento);
+    }
+
+    if (elementoLucro) {
+        elementoLucro.textContent =
+            dinheiro(lucro);
+    }
+
+    if (elementoFaltaReceber) {
+        elementoFaltaReceber.textContent =
+            dinheiro(faltaReceber);
+    }
 
     return {
         valorDrinks,
-        custoInsumos,
         valorEstrutura,
         outrosCustos,
-        valorOrcamento,
+        custoInsumos,
         custoTotal,
-        lucro,
+        valorOrcamento,
         valorRecebido,
-        faltaReceber
+        faltaReceber,
+        lucro
     };
 }
 
@@ -442,6 +484,19 @@ function salvarOrcamento() {
             document.getElementById("convidados").value || 0
         );
 
+    const mediaDrinks =
+        Number(
+            document.getElementById("drinksPorPessoa")?.value || 0
+        );
+
+    const valorPorPessoa =
+        Number(
+            document.getElementById("valorPorPessoa")?.value || 0
+        );
+
+    const totalDrinks =
+        convidados * mediaDrinks;
+
     const horas =
         Number(
             document.getElementById("horas").value || 0
@@ -465,6 +520,11 @@ function salvarOrcamento() {
         return;
     }
 
+    if (mediaDrinks <= 0) {
+        alert("Informe os drinks por pessoa.");
+        return;
+    }
+
     const calculo =
         calcularOrcamento();
 
@@ -484,20 +544,6 @@ function salvarOrcamento() {
                 ).value || 0
             );
 
-        const preco =
-            Number(
-                document.getElementById(
-                    `precoDrink${index}`
-                ).value || 0
-            );
-
-        const custo =
-            Number(
-                document.getElementById(
-                    `custoDrink${index}`
-                ).value || 0
-            );
-
         if (
             checkbox &&
             checkbox.checked &&
@@ -506,14 +552,9 @@ function salvarOrcamento() {
 
             bebidas.push({
                 nome: drink.nome,
-                quantidade: quantidade,
-                preco: preco,
-                custo: custo,
-                subtotal: quantidade * preco
+                quantidade: quantidade
             });
-
         }
-
     });
 
     const evento = {
@@ -532,10 +573,12 @@ function salvarOrcamento() {
 
         horas,
 
-        mediaDrinksPorPessoa: 4,
+        mediaDrinksPorPessoa:
+            mediaDrinks,
 
-        totalDrinks:
-            convidados * 4,
+        totalDrinks,
+
+        valorPorPessoa,
 
         bebidas,
 
@@ -578,9 +621,7 @@ function salvarOrcamento() {
         JSON.stringify(eventos)
     );
 
-    alert(
-        "✅ Orçamento salvo com sucesso!"
-    );
+    alert("✅ Orçamento salvo com sucesso!");
 
     limparFormulario();
 
@@ -618,6 +659,20 @@ function limparFormulario() {
 
     document.getElementById("observacoes").value = "";
 
+    const campoMedia =
+        document.getElementById("drinksPorPessoa");
+
+    if (campoMedia) {
+        campoMedia.value = 4;
+    }
+
+    const campoValor =
+        document.getElementById("valorPorPessoa");
+
+    if (campoValor) {
+        campoValor.value = 34.90;
+    }
+
     drinks.forEach(function(drink, index) {
 
         const quantidade =
@@ -625,32 +680,18 @@ function limparFormulario() {
                 `quantidadeDrink${index}`
             );
 
-        const preco =
-            document.getElementById(
-                `precoDrink${index}`
-            );
-
-        const custo =
-            document.getElementById(
-                `custoDrink${index}`
-            );
-
         const checkbox =
             document.getElementById(
                 `selecionarDrink${index}`
             );
 
-        if (quantidade)
+        if (quantidade) {
             quantidade.value = 0;
+        }
 
-        if (preco)
-            preco.value = 0;
-
-        if (custo)
-            custo.value = 0;
-
-        if (checkbox)
+        if (checkbox) {
             checkbox.checked = true;
+        }
     });
 
     atualizarQuantidadeDrinks();
@@ -664,28 +705,17 @@ function limparFormulario() {
 function carregarEventos() {
 
     const lista =
-        document.getElementById(
-            "listaEventos"
-        );
+        document.getElementById("listaEventos");
 
     if (!lista) return;
 
     if (eventos.length === 0) {
 
         lista.innerHTML = `
-
             <div class="vazio">
-
-                <h3>
-                    Nenhum evento cadastrado.
-                </h3>
-
-                <p>
-                    Crie seu primeiro orçamento.
-                </p>
-
+                <h3>Nenhum evento cadastrado.</h3>
+                <p>Crie seu primeiro orçamento.</p>
             </div>
-
         `;
 
         return;
@@ -706,12 +736,7 @@ function carregarEventos() {
             const bebidas =
                 evento.bebidas
                     ?.map(function(bebida) {
-
-                        return `
-                            ${bebida.nome}:
-                            ${bebida.quantidade}
-                        `;
-
+                        return `${bebida.nome}: ${bebida.quantidade}`;
                     })
                     .join(" | ")
                 || "Nenhum";
@@ -731,9 +756,7 @@ function carregarEventos() {
 
                     <p>
                         <strong>Data:</strong>
-                        ${formatarData(
-                            evento.dataEvento
-                        )}
+                        ${formatarData(evento.dataEvento)}
                     </p>
 
                     <p>
@@ -747,47 +770,43 @@ function carregarEventos() {
                     </p>
 
                     <p>
-                        <strong>
-                            Total de drinks:
-                        </strong>
+                        <strong>Drinks por pessoa:</strong>
+                        ${evento.mediaDrinksPorPessoa || 0}
+                    </p>
+
+                    <p>
+                        <strong>Total de drinks:</strong>
                         ${evento.totalDrinks || 0}
                     </p>
 
                     <p>
-                        <strong>
-                            Drinks:
-                        </strong>
+                        <strong>Valor por pessoa:</strong>
+                        ${dinheiro(evento.valorPorPessoa || 0)}
+                    </p>
+
+                    <p>
+                        <strong>Drinks:</strong>
                         ${bebidas}
                     </p>
 
                     <p>
                         <strong>Valor:</strong>
-                        ${dinheiro(
-                            evento.valorOrcamento
-                        )}
+                        ${dinheiro(evento.valorOrcamento)}
                     </p>
 
                     <p>
                         <strong>Recebido:</strong>
-                        ${dinheiro(
-                            evento.valorRecebido
-                        )}
+                        ${dinheiro(evento.valorRecebido)}
                     </p>
 
                     <p>
                         <strong>A receber:</strong>
-                        ${dinheiro(
-                            evento.faltaReceber
-                        )}
+                        ${dinheiro(evento.faltaReceber)}
                     </p>
 
                     <p>
-                        <strong>
-                            Lucro estimado:
-                        </strong>
-                        ${dinheiro(
-                            evento.lucro
-                        )}
+                        <strong>Lucro estimado:</strong>
+                        ${dinheiro(evento.lucro)}
                     </p>
 
                     <span class="status">
@@ -798,15 +817,12 @@ function carregarEventos() {
 
                     <button
                         class="btn-excluir"
-                        onclick="excluirEvento(
-                            ${evento.id}
-                        )"
+                        onclick="excluirEvento(${evento.id})"
                     >
                         🗑️ Excluir
                     </button>
 
                 </div>
-
             `;
         });
 }
@@ -823,14 +839,11 @@ function formatarData(data) {
     const partes =
         data.split("-");
 
-    if (partes.length !== 3)
+    if (partes.length !== 3) {
         return data;
+    }
 
-    return `
-        ${partes[2]}/
-        ${partes[1]}/
-        ${partes[0]}
-    `;
+    return `${partes[2]}/${partes[1]}/${partes[0]}`;
 }
 
 
@@ -899,16 +912,12 @@ function cadastrarInsumo() {
     }
 
     if (quantidade <= 0) {
-        alert(
-            "Informe a quantidade comprada."
-        );
+        alert("Informe a quantidade comprada.");
         return;
     }
 
     if (preco <= 0) {
-        alert(
-            "Informe o preço pago."
-        );
+        alert("Informe o preço pago.");
         return;
     }
 
@@ -916,17 +925,11 @@ function cadastrarInsumo() {
         preco / quantidade;
 
     const insumo = {
-
         id: Date.now(),
-
         nome,
-
         unidade,
-
         quantidade,
-
         preco,
-
         custoUnitario
     };
 
@@ -951,11 +954,13 @@ function cadastrarInsumo() {
 
     carregarInsumos();
 
-    alert(
-        "✅ Insumo cadastrado!"
-    );
+    alert("✅ Insumo cadastrado!");
 }
 
+
+// ==========================================
+// CARREGAR INSUMOS
+// ==========================================
 
 function carregarInsumos() {
 
@@ -969,15 +974,9 @@ function carregarInsumos() {
     if (insumos.length === 0) {
 
         lista.innerHTML = `
-
             <div class="vazio">
-
-                <p>
-                    Nenhum insumo cadastrado.
-                </p>
-
+                <p>Nenhum insumo cadastrado.</p>
             </div>
-
         `;
 
         return;
@@ -1004,38 +1003,34 @@ function carregarInsumos() {
                         ${insumo.unidade}
                         —
                         Compra:
-                        ${dinheiro(
-                            insumo.preco
-                        )}
+                        ${dinheiro(insumo.preco)}
                     </small>
 
                     <br>
 
                     <small>
-                        Custo por
-                        ${insumo.unidade}:
-                        ${dinheiro(
-                            insumo.custoUnitario
-                        )}
+                        Custo por ${insumo.unidade}:
+                        ${dinheiro(insumo.custoUnitario)}
                     </small>
 
                 </div>
 
                 <button
                     class="btn-excluir"
-                    onclick="excluirInsumo(
-                        ${insumo.id}
-                    )"
+                    onclick="excluirInsumo(${insumo.id})"
                 >
                     🗑️
                 </button>
 
             </div>
-
         `;
     });
 }
 
+
+// ==========================================
+// EXCLUIR INSUMO
+// ==========================================
 
 function excluirInsumo(id) {
 
@@ -1070,56 +1065,36 @@ function atualizarDashboard() {
         eventos.length;
 
     const totalFaturamento =
-        eventos.reduce(
-            function(total, evento) {
-
-                return total +
-                    Number(
-                        evento.valorOrcamento || 0
-                    );
-
-            },
-            0
-        );
+        eventos.reduce(function(total, evento) {
+            return total +
+                Number(
+                    evento.valorOrcamento || 0
+                );
+        }, 0);
 
     const totalRecebido =
-        eventos.reduce(
-            function(total, evento) {
-
-                return total +
-                    Number(
-                        evento.valorRecebido || 0
-                    );
-
-            },
-            0
-        );
+        eventos.reduce(function(total, evento) {
+            return total +
+                Number(
+                    evento.valorRecebido || 0
+                );
+        }, 0);
 
     const totalAReceber =
-        eventos.reduce(
-            function(total, evento) {
-
-                return total +
-                    Number(
-                        evento.faltaReceber || 0
-                    );
-
-            },
-            0
-        );
+        eventos.reduce(function(total, evento) {
+            return total +
+                Number(
+                    evento.faltaReceber || 0
+                );
+        }, 0);
 
     const totalLucro =
-        eventos.reduce(
-            function(total, evento) {
-
-                return total +
-                    Number(
-                        evento.lucro || 0
-                    );
-
-            },
-            0
-        );
+        eventos.reduce(function(total, evento) {
+            return total +
+                Number(
+                    evento.lucro || 0
+                );
+        }, 0);
 
     const elementoEventos =
         document.getElementById(
@@ -1186,8 +1161,6 @@ document.addEventListener(
 
         atualizarDashboard();
 
-        // Quando alterar o número de convidados,
-        // recalcula automaticamente os drinks.
         const campoConvidados =
             document.getElementById(
                 "convidados"
@@ -1199,8 +1172,6 @@ document.addEventListener(
                 "input",
                 atualizarQuantidadeDrinks
             );
-
         }
-
     }
 );
