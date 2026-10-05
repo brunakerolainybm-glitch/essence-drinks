@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Essence Drinks - Orçamentos</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+    <div class="logo">
+        <span>🍸</span>
+        <div>
+            <h1>Essence Drinks</h1>
+            <p>Orçamentos & Eventos</p>
+        </div>
+    </div>
+</header>
+
+<nav>
+    <button onclick="mostrarTela('orcamento')">➕ Novo Orçamento</button>
+    <button onclick="mostrarTela('eventos')">📋 Eventos</button>
+    <button onclick="mostrarTela('insumos')">📦 Insumos</button>
+    <button onclick="mostrarTela('dashboard')">📊 Dashboard</button>
+</nav>
+
+<main>
+
+    <!-- NOVO ORÇAMENTO -->
+    <section id="orcamento" class="tela ativa">
+
+        <div class="titulo">
+            <h2>Novo Orçamento</h2>
+            <p>Monte o orçamento do seu evento.</p>
+        </div>
+
+        <div class="card">
+
+            <h3>👤 Dados do cliente</h3>
+
+            <div class="grid">
+
+                <div>
+                    <label>Nome do cliente</label>
+                    <input type="text" id="cliente" placeholder="Nome do cliente">
+                </div>
+
+                <div>
+                    <label>Data do evento</label>
+                    <input type="date" id="dataEvento">
+                </div>
+
+                <div>
+                    <label>Tipo de evento</label>
+                    <input type="text" id="tipoEvento" placeholder="Casamento, aniversário...">
+                </div>
+
+                <div>
+                    <label>Local</label>
+                    <input type="text" id="localEvento" placeholder="Local do evento">
+                </div>
+
+                <div>
+                    <label>Número de convidados</label>
+                    <input type="number" id="convidados" min="1" value="50">
+                </div>
+
+                <div>
+                    <label>Horas de serviço</label>
+                    <input type="number" id="horas" min="1" value="6">
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="card">
+
+            <h3>🍹 Drinks</h3>
+
+            <div id="listaDrinks"></div>
+
+        </div>
+
+        <div class="card">
+
+            <h3>💰 Outros valores</h3>
+
+            <div class="grid">
+
+                <div>
+                    <label>Valor da estrutura</label>
+                    <input
+                        type="number"
+                        id="valorEstrutura"
+                        value="0"
+                        min="0"
+                        step="0.01"
+                        oninput="calcularOrcamento()"
+                    >
+                </div>
+
+                <div>
+                    <label>Outros custos</label>
+                    <input
+                        type="number"
+                        id="outrosCustos"
+                        value="0"
+                        min="0"
+                        step="0.01"
+                        oninput="calcularOrcamento()"
+                    >
+                </div>
+
+                <div>
+                    <label>Valor já recebido</label>
+                    <input
+                        type="number"
+                        id="valorRecebido"
+                        value="0"
+                        min="0"
+                        step="0.01"
+                        oninput="calcularOrcamento()"
+                    >
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="card resumo">
+
+            <h3>📊 Resumo do orçamento</h3>
+
+            <div class="resumo-grid">
+
+                <div>
+                    <span>Valor dos drinks</span>
+                    <strong id="valorDrinks">R$ 0,00</strong>
+                </div>
+
+                <div>
+                    <span>Custo dos insumos</span>
+                    <strong id="custoInsumos">R$ 0,00</strong>
+                </div>
+
+                <div>
+                    <span>Custo total</span>
+                    <strong id="custoTotal">R$ 0,00</strong>
+                </div>
+
+                <div>
+                    <span>Valor do orçamento</span>
+                    <strong id="valorOrcamento">R$ 0,00</strong>
+                </div>
+
+                <div>
+                    <span>Lucro estimado</span>
+                    <strong id="lucro">R$ 0,00</strong>
+                </div>
+
+                <div>
+                    <span>Falta receber</span>
+                    <strong id="faltaReceber">R$ 0,00</strong>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="card">
+
+            <label>Observações</label>
+
+            <textarea
+                id="observacoes"
+                rows="4"
+                placeholder="Observações sobre o evento..."
+            ></textarea>
+
+        </div>
+
+        <button class="btn-principal" onclick="salvarOrcamento()">
+            💾 Salvar orçamento
+        </button>
+
+    </section>
+
+
+    <!-- EVENTOS -->
+    <section id="eventos" class="tela">
+
+        <div class="titulo">
+            <h2>📋 Eventos</h2>
+            <p>Seus orçamentos e eventos cadastrados.</p>
+        </div>
+
+        <div id="listaEventos"></div>
+
+    </section>
+
+
+    <!-- INSUMOS -->
+    <section id="insumos" class="tela">
+
+        <div class="titulo">
+            <h2>📦 Cadastro de Insumos</h2>
+            <p>Cadastre os produtos utilizados nos seus drinks.</p>
+        </div>
+
+        <div class="card">
+
+            <div class="grid">
+
+                <div>
+                    <label>Nome do insumo</label>
+                    <input
+                        type="text"
+                        id="nomeInsumo"
+                        placeholder="Ex.: Vodka"
+                    >
+                </div>
+
+                <div>
+                    <label>Unidade</label>
+                    <select id="unidadeInsumo">
+                        <option value="un">Unidade</option>
+                        <option value="ml">ML</option>
+                        <option value="l">Litro</option>
+                        <option value="g">Grama</option>
+                        <option value="kg">KG</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label>Quantidade comprada</label>
+                    <input
+                        type="number"
+                        id="quantidadeInsumo"
+                        min="0"
+                        step="0.01"
+                    >
+                </div>
+
+                <div>
+                    <label>Preço pago</label>
+                    <input
+                        type="number"
+                        id="precoInsumo"
+                        min="0"
+                        step="0.01"
+                        placeholder="R$ 0,00"
+                    >
+                </div>
+
+            </div>
+
+            <button class="btn-principal" onclick="cadastrarInsumo()">
+                ➕ Cadastrar insumo
+            </button>
+
+        </div>
+
+        <div class="card">
+
+            <h3>📦 Meus insumos</h3>
+
+            <div id="listaInsumos"></div>
+
+        </div>
+
+    </section>
+
+
+    <!-- DASHBOARD -->
+    <section id="dashboard" class="tela">
+
+        <div class="titulo">
+            <h2>📊 Dashboard</h2>
+            <p>Visão geral dos seus eventos.</p>
+        </div>
+
+        <div class="dashboard-grid">
+
+            <div class="dashboard-card">
+                <span>Eventos</span>
+                <strong id="totalEventos">0</strong>
+            </div>
+
+            <div class="dashboard-card">
+                <span>Faturamento</span>
+                <strong id="totalFaturamento">R$ 0,00</strong>
+            </div>
+
+            <div class="dashboard-card">
+                <span>Recebido</span>
+                <strong id="totalRecebido">R$ 0,00</strong>
+            </div>
+
+            <div class="dashboard-card">
+                <span>A receber</span>
+                <strong id="totalAReceber">R$ 0,00</strong>
+            </div>
+
+            <div class="dashboard-card destaque">
+                <span>Lucro estimado</span>
+                <strong id="totalLucro">R$ 0,00</strong>
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+
+<script src="script.js"></script>
+
+</body>
+</html>
